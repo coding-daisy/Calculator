@@ -1,35 +1,66 @@
 const operatorOptions = ["+", "-", "*", "/", "="];
 
-let currentOperator = "";
+let currentOperatorIndex = 4;
 let currentOperatorIsArithmetic = false;
+// value added, so that results can ... 
+// be overwritten if different integers are inputted afterwards
+// be used if an operator is used afterwards
+let firstValueIsResult = true;
 let currentValue = "";
-let values = {firstValue: "0", secondValue: "0"}
+let values = { firstValue: "0", secondValue: "" };
+
+function performCalculation() {
+  switch (currentOperatorIndex) {
+    case 0:
+      values["firstValue"] = +values["firstValue"] + +values["secondValue"];
+      break;
+    case 1:
+      values["firstValue"] = values["firstValue"] - values["secondValue"];
+      break;
+    case 2:
+      values["firstValue"] = values["firstValue"] * values["secondValue"];
+      break;
+    case 3:
+      values["firstValue"] = values["firstValue"] / values["secondValue"];
+      break;
+    default:
+      throw new Error("invalid operatorOptionsIndex for performing ");
+  }
+  values["secondValue"] = "";
+}
 
 // the index is 0/1 if the first/second value should be changed
-function conditionallyAdd(whichValue, integerToBeAddedAsString) {
-    if (values[whichValue] === "0") {
-        values[whichValue] = integerToBeAddedAsString;
-    } else {
-        values[whichValue] += integerToBeAddedAsString;
-    }
+function conditionallyAppend(whichValue, integerToBeAddedAsString) {
+  if (values[whichValue] === "0" || firstValueIsResult) {
+    values[whichValue] = integerToBeAddedAsString;
+    firstValueIsResult = false;
+  } else {
+    values[whichValue] += integerToBeAddedAsString;
+  }
 }
 
 function processOperator(operatorOptionsIndex) {
-  if (operatorOptionsIndex === 4) {
-    currentOperatorIsArithmetic = false;
-  } else {
-    currentOperatorIsArithmetic = true;
+  if (values["secondValue"]) {
+    performCalculation();
   }
 
-  currentOperator = operatorOptions[operatorOptionsIndex];
+  if (operatorOptionsIndex === 4) {
+    currentOperatorIsArithmetic = false;
+    firstValueIsResult = true;
+  } else {
+    currentOperatorIsArithmetic = true;
+    firstValueIsResult = false;
+  }
+
+  currentOperatorIndex = operatorOptionsIndex;
 }
 
 function processInteger(input) {
   currentValue = input;
   if (currentOperatorIsArithmetic) {
-    conditionallyAdd("secondValue", input);
+    conditionallyAppend("secondValue", input);
   } else {
-    conditionallyAdd("firstValue", input);
+    conditionallyAppend("firstValue", input);
   }
 }
 
@@ -45,13 +76,13 @@ function returnInputType(input) {
 }
 
 function traceValues() {
-    console.log(
-      `current operator: ${currentOperator} is arithmetic? ${currentOperatorIsArithmetic}\ncurrent value: ${currentValue}\n`
-    );
-    console.log(
-      `first value: ${values["firstValue"]}; secondValue: ${values["secondValue"]}`
-    );
-  }
+  console.log(
+    `current operator: ${operatorOptions[currentOperatorIndex]} is arithmetic? ${currentOperatorIsArithmetic}\ncurrent value: ${currentValue}\n`
+  );
+  console.log(
+    `first value: ${values["firstValue"]}; secondValue: ${values["secondValue"]}`
+  );
+}
 
 function processInput(input) {
   let type = returnInputType(input);

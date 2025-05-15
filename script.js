@@ -46,6 +46,13 @@ let values = {
   secondValue: "",
 };
 
+function reset() {
+    values["firstValue"] = 0;
+    values["secondValue"] = "";
+    currentBinaryOperatorIndex = 4;
+    isResult = true;
+}
+
 function initializeButtonEventListeners() {
   buttonSection.addEventListener("click", (event) => {
     if (event.target.classList.contains("button")) {
@@ -231,6 +238,9 @@ function returnInputType(input) {
   if (Number.isInteger(parseInt(input)) || input == "±" || input == ".") {
     return "notOperator";
   }
+  if (input === "AC") {
+    return "AC";
+  }
   for (let i = 0; i < binaryOperatorOptions.length; i++) {
     if (binaryOperatorOptions[i] === input) {
       return i;
@@ -238,14 +248,6 @@ function returnInputType(input) {
   }
 }
 
-function traceValues() {
-  console.log(
-    `current binary operator: ${binaryOperatorOptions[currentBinaryOperatorIndex]} is arithmetic? ${currentBinaryOperatorIsArithmetic}`
-  );
-  console.log(
-    `first value: ${values["firstValue"]}; secondValue: ${values["secondValue"]}`
-  );
-}
 
 function processInput(input) {
   let type = returnInputType(input);
@@ -253,11 +255,12 @@ function processInput(input) {
     processBinaryOperator(type);
   } else if (type == "notOperator") {
     processIntegerOrDotOrUnaryOperator(input);
+  } else  if (type == "AC"){
+    reset();
+    updateDisplay();
   } else {
     throw new Error("invalid input type");
   }
-
-  traceValues();
 }
 
 function initialize() {

@@ -1,3 +1,76 @@
-body {
-    color: blue;
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+@font-face {
+    font-family: 'Calculator-Font'; /* Name your font */
+    src: url('fonts/digital-7-font/Digital7Mono-Yz9J4.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+#calculatorSection {
+    display: flex;
+    justify-content: center;
+}
+
+#calculatorBody {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    aspect-ratio: 0.8;
+    background-color: rgb(47, 47, 47);
+    border: 3px solid rgb(21, 21, 21);
+    padding: 7px;
+    border-radius: 10px;
+    gap: 5px;
+}
+
+#displaySection {
+    height: 15%;
+    background-color: rgb(99, 99, 99);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    border: 2px solid rgb(21, 21, 21);
+}
+
+#display {
+    margin-left: auto;
+    padding: 10px;
+    font-family: Calculator-Font;
+    font-size: 30px;
+}
+
+
+
+#buttonSection {
+    height: 85%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.buttonRow {
+    display: flex;
+    flex: 1;
+    gap: 2px;
+}
+
+.button {
+    border-radius: 8px;
+    font-family: "Roboto";
+    font-weight: 700;
+    border: 2px solid rgb(21, 21, 21);
+    position: relative;
+}
+
+.button:active::after {
+    position: absolute;
+    content: '';
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.2);
 }

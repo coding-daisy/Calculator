@@ -46,11 +46,27 @@ let values = {
   secondValue: "",
 };
 
+function addDecoration() {
+  const displaySection = document.querySelector("#displaySection");
+  const reflectionBox = document.createElement("div");
+  const firstReflection = document.createElement("div");
+  const secondReflection = document.createElement("div");
+  reflectionBox.id = "reflectionBox";
+  firstReflection.classList.add("reflection");
+  secondReflection.classList.add("reflection");
+  firstReflection.id = "firstReflection";
+  secondReflection.id = "secondReflection";
+
+  displaySection.appendChild(reflectionBox);
+  reflectionBox.appendChild(firstReflection);
+  reflectionBox.appendChild(secondReflection);
+}
+
 function reset() {
-    values["firstValue"] = 0;
-    values["secondValue"] = "";
-    currentBinaryOperatorIndex = 4;
-    isResult = true;
+  values["firstValue"] = 0;
+  values["secondValue"] = "";
+  currentBinaryOperatorIndex = 4;
+  isResult = true;
 }
 
 function initializeButtonEventListeners() {
@@ -171,7 +187,7 @@ function negate(whichValue) {
 
 function conditionallyAppend(whichValue, integerOrDotAsString) {
   //firsty check if the first result will be overwritten, since:
-    // every distinction about how to append to the existing value becomes irrelevant if it is overwritten
+  // every distinction about how to append to the existing value becomes irrelevant if it is overwritten
   if (firstValueIsResult && whichValue === "firstValue") {
     values[whichValue] = integerOrDotAsString;
     firstValueIsResult = false;
@@ -248,14 +264,13 @@ function returnInputType(input) {
   }
 }
 
-
 function processInput(input) {
   let type = returnInputType(input);
   if (Number.isInteger(type)) {
     processBinaryOperator(type);
   } else if (type == "notOperator") {
     processIntegerOrDotOrUnaryOperator(input);
-  } else  if (type == "AC"){
+  } else if (type == "AC") {
     reset();
     updateDisplay();
   } else {
@@ -267,6 +282,7 @@ function initialize() {
   updateDisplay();
   createCalculator();
   initializeButtonEventListeners();
+  addDecoration();
 }
 
 initialize();

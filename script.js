@@ -1,4 +1,4 @@
-const operatorOptions = ["+", "-", "x", "÷", "="];
+const binaryOperatorOptions = ["+", "-", "x", "÷", "="];
 const decimalPlaces = 5;
 const display = document.querySelector("#display");
 const buttonSection = document.querySelector("#buttonSection");
@@ -6,7 +6,7 @@ const integerButtonSettings = {
   backgroundColor: "rgb(82, 82, 82)",
   fontColor: "rgb(255, 255, 255",
 };
-const operatorButtonSettings = {
+const binaryOperatorButtonSettings = {
   backgroundColor: "rgb(230, 157, 12)",
   fontColor: "rgb(255, 255, 255)",
 };
@@ -35,20 +35,23 @@ const buttonOptions = [
   "=",
 ];
 
-let currentOperatorIndex = 4;
-let currentOperatorIsArithmetic = false;
+let currentBinaryOperatorIndex = 4;
+let currentBinaryOperatorIsArithmetic = false;
 // value added, so that results can ...
 // be overwritten if different integers are inputted afterwards
 // be used if an operator is used afterwards
 let firstValueIsResult = true;
-let values = { firstValue: "0", secondValue: "" };
+let values = {
+  firstValue: "0",
+  secondValue: "",
+};
 
 function initializeButtonEventListeners() {
-    buttonSection.addEventListener('click', (event) => {
-        if (event.target.classList.contains("button")) {
-            processInput(event.target.innerText);
-        }
-    })
+  buttonSection.addEventListener("click", (event) => {
+    if (event.target.classList.contains("button")) {
+      processInput(event.target.innerText);
+    }
+  });
 }
 
 function createCalculator() {
@@ -57,9 +60,9 @@ function createCalculator() {
   for (let buttonName of buttonOptions) {
     // create new row after 4 'button-entities'
     if ((buttonCounter - 1) % 4 === 0) {
-        currentRow = document.createElement("div");
-        currentRow.classList.add("buttonRow");
-        buttonSection.appendChild(currentRow);
+      currentRow = document.createElement("div");
+      currentRow.classList.add("buttonRow");
+      buttonSection.appendChild(currentRow);
     }
 
     currentButton = document.createElement("button");
@@ -68,18 +71,18 @@ function createCalculator() {
 
     let currentButtonSettings;
     if (Number.isInteger(parseInt(buttonName))) {
-        currentButtonSettings =  integerButtonSettings;
-    } else if (operatorOptions.includes(buttonName)) {
-        currentButtonSettings = operatorButtonSettings;
+      currentButtonSettings = integerButtonSettings;
+    } else if (binaryOperatorOptions.includes(buttonName)) {
+      currentButtonSettings = binaryOperatorButtonSettings;
     } else {
-        currentButtonSettings = otherButtonSettings;
+      currentButtonSettings = otherButtonSettings;
     }
     currentButton.style.color = currentButtonSettings.fontColor;
     currentButton.style.backgroundColor = currentButtonSettings.backgroundColor;
     if (buttonName === "0") {
-        currentButton.style.width = "75%";
+      currentButton.style.width = "75%";
     } else {
-        currentButton.style.width = "25%";
+      currentButton.style.width = "25%";
     }
 
     currentRow.appendChild(currentButton);
@@ -87,80 +90,125 @@ function createCalculator() {
   }
 }
 
+function canBeUsedOrDisplayed(value) {
+    if (value && (value !== "-")) {
+        return true;
+    }
+    return false;
+}
+
 function updateDisplay() {
-  if (values["secondValue"] !== "") {
+  if (canBeUsedOrDisplayed(values["secondValue"])) {
     display.innerText =
-      Math.round(values["secondValue"] * 10 ** decimalPlaces) /
+      Math.round(
+        values["secondValue"] *
+          10 ** decimalPlaces
+      ) /
       10 ** decimalPlaces;
   } else {
     display.innerText =
-      Math.round(values["firstValue"] * 10 ** decimalPlaces) /
+      Math.round(
+        values["firstValue"] *
+          10 ** decimalPlaces
+      ) /
       10 ** decimalPlaces;
   }
 }
 
 function performCalculation() {
-  switch (currentOperatorIndex) {
+    // the exact values are products and therefore integers, meaning that they don't have to be converted for the addition
+  let exactFirstValue =
+    values["firstValue"] * 1;
+  let exactSecondValue =
+    values["secondValue"]* 1;
+  switch (currentBinaryOperatorIndex) {
     case 0:
-      values["firstValue"] = +values["firstValue"] + +values["secondValue"];
+      values["firstValue"] = exactFirstValue + exactSecondValue;
       break;
     case 1:
-      values["firstValue"] = values["firstValue"] - values["secondValue"];
+      values["firstValue"] = exactFirstValue - exactSecondValue;
       break;
     case 2:
-      values["firstValue"] = values["firstValue"] * values["secondValue"];
+      values["firstValue"] = exactFirstValue * exactSecondValue;
       break;
     case 3:
-      values["firstValue"] = values["firstValue"] / values["secondValue"];
+      values["firstValue"] = exactFirstValue / exactSecondValue;
       break;
     default:
-      throw new Error("invalid operatorOptionsIndex for performing ");
+      throw new Error("invalid currentBinaryOperatorIndex for performing operation");
   }
   values["secondValue"] = "";
   updateDisplay();
+  firstValueIsResult = false;
 }
 
-// the index is 0/1 if the first/second value should be changed
-function conditionallyAppend(whichValue, integerToBeAddedAsString) {
-  if (values[whichValue] === "0" || firstValueIsResult) {
-    values[whichValue] = integerToBeAddedAsString;
-    firstValueIsResult = false;
-  } else {
-    values[whichValue] += integerToBeAddedAsString;
-  }
-  updateDisplay();
+function negate(whichValue) {
+    if (Number.isFinite(Number(values[whichValue]))) {
+        values[whichValue] = -values[whichValue]
+    } else if (values[whichValue] === "") {
+        values[whichValue] = "-";
+    } else if (values[whichValue] === "-") {
+        values[whichValue] = "";
+    } else {
+        throw new Error("invalid value to be negated: " + whichValue);
+    }
 }
 
-function processOperator(operatorOptionsIndex) {
-  if (values["secondValue"]) {
+function conditionallyAppend(whichValue, integerAsString) {
+    if (values[whichValue] == "0") {
+        // making distinction between 0 and -0
+        if (1/values[whichValue] === Infinity) {
+            values[whichValue] = integerAsString;
+        } else if (1/values[whichValue] === -Infinity) {
+            values[whichValue] = -integerAsString;
+        } 
+      } else {
+        values[whichValue] += integerAsString;
+      }
+}
+
+function conditionallyAppendOrNegate(whichValue, integerAsStringOrUnaryOperator) {
+if (integerAsStringOrUnaryOperator === "±") {
+    negate(whichValue);
+} else {
+    conditionallyAppend(whichValue, integerAsStringOrUnaryOperator);
+}
+updateDisplay();
+}
+
+function processBinaryOperator(binaryOperatorIndex) {
+  if (canBeUsedOrDisplayed(values["secondValue"])) {
     performCalculation();
+  } else if (currentBinaryOperatorIndex !== 4) {
+    // if the previous operator wasn't "=",  a prefix of "-" have been set for the second value.
+    // In that case, when the operator is changed, this prefix has to be discarded.
+    values["secondValue"] = "";
   }
+  
+  currentBinaryOperatorIndex = binaryOperatorIndex;
 
-  if (operatorOptionsIndex === 4) {
-    currentOperatorIsArithmetic = false;
+  if (currentBinaryOperatorIndex === 4) {
+    currentBinaryOperatorIsArithmetic = false;
     firstValueIsResult = true;
   } else {
-    currentOperatorIsArithmetic = true;
-    firstValueIsResult = false;
+    currentBinaryOperatorIsArithmetic = true;
   }
-
-  currentOperatorIndex = operatorOptionsIndex;
 }
 
-function processInteger(input) {
-  if (currentOperatorIsArithmetic) {
-    conditionallyAppend("secondValue", input);
+function processIntegerOrUnaryOperator(input) {
+  if (currentBinaryOperatorIsArithmetic) {
+    conditionallyAppendOrNegate("secondValue", input);
   } else {
-    conditionallyAppend("firstValue", input);
+    conditionallyAppendOrNegate("firstValue", input);
   }
 }
 
 function returnInputType(input) {
-  if (Number.isInteger(parseInt(input))) {
+  if (Number.isInteger(parseInt(input)) || input == "±") {
     return "integer";
   }
-  for (let i = 0; i < operatorOptions.length; i++) {
-    if (operatorOptions[i] === input) {
+  for (let i = 0; i < binaryOperatorOptions.length; i++) {
+    if (binaryOperatorOptions[i] === input) {
       return i;
     }
   }
@@ -168,7 +216,7 @@ function returnInputType(input) {
 
 function traceValues() {
   console.log(
-    `current operator: ${operatorOptions[currentOperatorIndex]} is arithmetic? ${currentOperatorIsArithmetic}`
+    `current binary operator: ${binaryOperatorOptions[currentBinaryOperatorIndex]} is arithmetic? ${currentBinaryOperatorIsArithmetic}`
   );
   console.log(
     `first value: ${values["firstValue"]}; secondValue: ${values["secondValue"]}`
@@ -178,9 +226,9 @@ function traceValues() {
 function processInput(input) {
   let type = returnInputType(input);
   if (Number.isInteger(type)) {
-    processOperator(type);
+    processBinaryOperator(type);
   } else if (type == "integer") {
-    processInteger(input);
+    processIntegerOrUnaryOperator(input);
   } else {
     throw new Error("invalid input");
   }

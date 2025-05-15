@@ -1,4 +1,6 @@
 const operatorOptions = ["+", "-", "*", "/", "="];
+const decimalPlaces = 5;
+const display = document.querySelector("#display");
 
 let currentOperatorIndex = 4;
 let currentOperatorIsArithmetic = false;
@@ -6,8 +8,16 @@ let currentOperatorIsArithmetic = false;
 // be overwritten if different integers are inputted afterwards
 // be used if an operator is used afterwards
 let firstValueIsResult = true;
-let currentValue = "";
 let values = { firstValue: "0", secondValue: "" };
+
+
+function updateDisplay(){
+    if (values["secondValue"] !== "") {
+        display.innerText = Math.round(values["secondValue"]*(10**decimalPlaces))/(10**decimalPlaces);
+    } else {
+        display.innerText = Math.round(values["firstValue"]*(10**decimalPlaces))/(10**decimalPlaces);
+    }
+}
 
 function performCalculation() {
   switch (currentOperatorIndex) {
@@ -27,6 +37,7 @@ function performCalculation() {
       throw new Error("invalid operatorOptionsIndex for performing ");
   }
   values["secondValue"] = "";
+  updateDisplay();
 }
 
 // the index is 0/1 if the first/second value should be changed
@@ -37,6 +48,7 @@ function conditionallyAppend(whichValue, integerToBeAddedAsString) {
   } else {
     values[whichValue] += integerToBeAddedAsString;
   }
+  updateDisplay();
 }
 
 function processOperator(operatorOptionsIndex) {
@@ -56,7 +68,6 @@ function processOperator(operatorOptionsIndex) {
 }
 
 function processInteger(input) {
-  currentValue = input;
   if (currentOperatorIsArithmetic) {
     conditionallyAppend("secondValue", input);
   } else {
@@ -77,7 +88,7 @@ function returnInputType(input) {
 
 function traceValues() {
   console.log(
-    `current operator: ${operatorOptions[currentOperatorIndex]} is arithmetic? ${currentOperatorIsArithmetic}\ncurrent value: ${currentValue}\n`
+    `current operator: ${operatorOptions[currentOperatorIndex]} is arithmetic? ${currentOperatorIsArithmetic}`
   );
   console.log(
     `first value: ${values["firstValue"]}; secondValue: ${values["secondValue"]}`
@@ -96,3 +107,5 @@ function processInput(input) {
 
   traceValues();
 }
+
+updateDisplay();

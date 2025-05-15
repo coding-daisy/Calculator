@@ -43,6 +43,14 @@ let currentOperatorIsArithmetic = false;
 let firstValueIsResult = true;
 let values = { firstValue: "0", secondValue: "" };
 
+function initializeButtonEventListeners() {
+    buttonSection.addEventListener('click', (event) => {
+        if (event.target.classList.contains("button")) {
+            processInput(event.target.innerText);
+        }
+    })
+}
+
 function createCalculator() {
   let buttonCounter = 1;
   let currentRow;
@@ -183,6 +191,7 @@ function processInput(input) {
 function initialize() {
   updateDisplay();
   createCalculator();
+  initializeButtonEventListeners();
 }
 
 initialize();

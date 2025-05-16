@@ -149,14 +149,6 @@ function getTruncatedValue(value) {
   if (value === "ERROR" || value === "TOO LONG") {
     return value;
   }
-  if (value === ".") {
-    return "0.";
-  }
-  if (`${value}`.at(-1) === ".") {
-    return (
-      Math.round(value * 10 ** maxDecimalPlaces) / 10 ** maxDecimalPlaces + "."
-    );
-  }
   return Math.round(value * 10 ** maxDecimalPlaces) / 10 ** maxDecimalPlaces;
 }
 
@@ -222,6 +214,14 @@ function performCalculation() {
 
 function negate(whichValue) {
   // toggling "-" / ""
+  if (whichValue === "firstValue" && firstValueIsResult) {
+    firstValueIsResult = false;
+    values["firstValue"] = "-0";
+    return;
+    // normally, when a negation is used:
+      // a number to add "-" to already exists OR stand-alone "-" is not displayed (since it is the second value)
+    // however, if the first Value is negated AND it is empty (meaning that it was overwritten), "-0" has to be returned instead of "-"
+  }
   if (`${values[whichValue]}`.includes("-")) {
     // NOT setting equal to -values[whichValue] in order to keep potential "." at end
     values[whichValue] = `${values[whichValue]}`.replace("-", "");
@@ -245,11 +245,20 @@ function appendingIsPossible(whichValue) {
   return true;
 }
 
+// This function is used when there is a possibility for "." to be the leading dot
+// which is the case when: overwriting a result OR appending to 0/-0
+function handleLeadingDot(value) {
+  if (value === ".") {
+    return "0.";
+  }
+  return value;
+}
+
 function conditionallyAppend(whichValue, integerOrDotAsString) {
   // firsty check if the first result will be overwritten, since:
   // every distinction about how to append to the existing value becomes irrelevant if it is overwritten
   if (firstValueIsResult && whichValue === "firstValue") {
-    values[whichValue] = integerOrDotAsString;
+    values[whichValue] = handleLeadingDot(integerOrDotAsString);
     firstValueIsResult = false;
     return;
   }
@@ -261,18 +270,17 @@ function conditionallyAppend(whichValue, integerOrDotAsString) {
   if (integerOrDotAsString === ".") {
     if (`${values[whichValue]}`.includes(".")) {
       return;
+    } else if (!values[whichValue]) {
+      values[whichValue] = "0."
+    } else {
+      values[whichValue] += ".";
     }
-    values[whichValue] += ".";
     return;
   }
 
-  if (values[whichValue] == "0") {
-    // making distinction between 0 and -0
-    if (1 / values[whichValue] === Infinity) {
-      values[whichValue] = integerOrDotAsString;
-    } else if (1 / values[whichValue] === -Infinity) {
-      values[whichValue] = -integerOrDotAsString;
-    }
+  if (+values[whichValue] == 0) {
+    // keeping the unary "-" if it exists
+    values[whichValue] = values[whichValue].replace("0", 0) + handleLeadingDot(integerOrDotAsString);
   } else {
     values[whichValue] += integerOrDotAsString;
   }

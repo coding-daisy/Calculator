@@ -280,7 +280,7 @@ function conditionallyAppend(whichValue, integerOrDotAsString) {
 
   if (+values[whichValue] == 0) {
     // keeping the unary "-" if it exists
-    values[whichValue] = values[whichValue].replace("0", 0) + handleLeadingDot(integerOrDotAsString);
+    values[whichValue] = values[whichValue].replace("0", "") + handleLeadingDot(integerOrDotAsString);
   } else {
     values[whichValue] += integerOrDotAsString;
   }

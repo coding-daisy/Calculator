@@ -17,7 +17,8 @@
 #calculatorBody {
     display: flex;
     flex-direction: column;
-    width: 250px;
+    flex: 0 0 auto;
+    min-width: 250px;
     aspect-ratio: 0.8;
     background-color: rgb(47, 47, 47);
     border: 3px solid rgb(21, 21, 21);
@@ -41,6 +42,7 @@
     padding: 10px;
     font-family: Calculator-Font;
     font-size: 30px;
+    overflow: hidden;
 }
 
 

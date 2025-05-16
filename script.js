@@ -1,5 +1,7 @@
 const binaryOperatorOptions = ["+", "-", "x", "÷", "="];
-const decimalPlaces = 5;
+const decimalPlaces = 7;
+const maxShowableLength = 10;
+const maxDecimalPlaces = 4;
 const display = document.querySelector("#display");
 const buttonSection = document.querySelector("#buttonSection");
 const integerButtonSettings = {
@@ -66,7 +68,8 @@ function reset() {
   values["firstValue"] = 0;
   values["secondValue"] = "";
   currentBinaryOperatorIndex = 4;
-  isResult = true;
+  firstValueIsResult = true;
+  updateDisplay();
 }
 
 function initializeButtonEventListeners() {
@@ -88,7 +91,7 @@ function createCalculator() {
       buttonSection.appendChild(currentRow);
     }
 
-    currentButton = document.createElement("button");
+    let currentButton = document.createElement("button");
     currentButton.classList.add("button");
     currentButton.innerText = buttonName;
 
@@ -114,32 +117,56 @@ function createCalculator() {
 }
 
 function canBeUsedOrDisplayed(value) {
-  if (value && value !== "-") {
+  if (value !== "" && value !== "-") {
     return true;
   }
   return false;
 }
 
-function getDisplayValue(value) {
+function getTruncatedValue(value) {
+  if (value === "ERROR" || value === "TOO LONG") {
+    return value;
+  }
   if (value === ".") {
     return "0.";
   }
   if (`${value}`.at(-1) === ".") {
-    return Math.round(value * 10 ** decimalPlaces) / 10 ** decimalPlaces + ".";
+    return (
+      Math.round(value * 10 ** maxDecimalPlaces) / 10 ** maxDecimalPlaces + "."
+    );
   }
+  return Math.round(value * 10 ** maxDecimalPlaces) / 10 ** maxDecimalPlaces;
+}
 
-  return Math.round(value * 10 ** decimalPlaces) / 10 ** decimalPlaces;
+function turnIntoDisplayableValue(whichValue) {
+  let truncatedValue = getTruncatedValue(values[whichValue]);
+  if (Math.abs(Number(truncatedValue)).toString().length > maxShowableLength) {
+    values["firstValue"] = "TOO LONG";
+    return;
+    // This value is only returned as the result of a calculation, since manually inputting too long numbers is not possible
+  } else {
+    values[whichValue] = truncatedValue;
+    return;
+  }
 }
 
 function updateDisplay() {
   if (canBeUsedOrDisplayed(values["secondValue"])) {
-    display.innerText = getDisplayValue(values["secondValue"]);
+    turnIntoDisplayableValue("secondValue");
+    display.innerText = values["secondValue"];
   } else {
-    display.innerText = getDisplayValue(values["firstValue"]);
+    turnIntoDisplayableValue("firstValue");
+    display.innerText = values["firstValue"];
   }
 }
 
 function performCalculation() {
+  if (values["firstValue"] === "ERROR" || values["firstValue"] === "TOO LONG") {
+    values["firstValue"] = "ERROR";
+    values["secondValue"] = "";
+    return;
+  }
+
   // the exact values are products and therefore integers, meaning that they don't have to be converted for the addition
   let exactFirstValue = values["firstValue"] * 1;
   let exactSecondValue = values["secondValue"] * 1;
@@ -154,6 +181,11 @@ function performCalculation() {
       values["firstValue"] = exactFirstValue * exactSecondValue;
       break;
     case 3:
+      if (exactSecondValue === 0) {
+        values["firstValue"] = "ERROR";
+        values["secondValue"] = "";
+        return;
+      }
       values["firstValue"] = exactFirstValue / exactSecondValue;
       break;
     default:
@@ -162,35 +194,44 @@ function performCalculation() {
       );
   }
   values["secondValue"] = "";
-  updateDisplay();
   firstValueIsResult = false;
 }
 
 function negate(whichValue) {
-  if (Number.isFinite(Number(values[whichValue]))) {
-    // toggling "-" / ""
-    if (`${values[whichValue]}`.includes("-")) {
-      // NOT setting equal to -values[whichValue] in order to keep potential "." at end
-      values[whichValue] = `${values[whichValue]}`.replace("-", "");
-    } else {
-      // same reasoning
-      values[whichValue] = `-${values[whichValue]}`;
-    }
-  } else if (values[whichValue] === "") {
-    values[whichValue] = "-";
-  } else if (values[whichValue] === "-") {
-    values[whichValue] = "";
+  // toggling "-" / ""
+  if (`${values[whichValue]}`.includes("-")) {
+    // NOT setting equal to -values[whichValue] in order to keep potential "." at end
+    values[whichValue] = `${values[whichValue]}`.replace("-", "");
   } else {
-    throw new Error("invalid value to be negated: " + whichValue);
+    // same reasoning
+    values[whichValue] = `-${values[whichValue]}`;
   }
 }
 
+function appendingIsPossible(whichValue) {
+  let absoluteStringValue = Math.abs(values[whichValue]).toString();
+  if (absoluteStringValue.length >= maxShowableLength) {
+    return false;
+  }
+  if (
+    absoluteStringValue.includes(".") &&
+    absoluteStringValue.indexOf(".") <= absoluteStringValue.length - 6
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function conditionallyAppend(whichValue, integerOrDotAsString) {
-  //firsty check if the first result will be overwritten, since:
+  // firsty check if the first result will be overwritten, since:
   // every distinction about how to append to the existing value becomes irrelevant if it is overwritten
   if (firstValueIsResult && whichValue === "firstValue") {
     values[whichValue] = integerOrDotAsString;
     firstValueIsResult = false;
+    return;
+  }
+
+  if (!appendingIsPossible(whichValue)) {
     return;
   }
 
@@ -226,6 +267,7 @@ function conditionallyAppendOrNegate(whichValue, string) {
 function processBinaryOperator(binaryOperatorIndex) {
   if (canBeUsedOrDisplayed(values["secondValue"])) {
     performCalculation();
+    updateDisplay();
   } else if (currentBinaryOperatorIndex !== 4) {
     // if the previous operator wasn't "=",  a prefix of "-" have been set for the second value.
     // In that case, when the operator is changed, this prefix has to be discarded.

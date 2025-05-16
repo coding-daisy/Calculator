@@ -6,7 +6,7 @@ const display = document.querySelector("#display");
 const buttonSection = document.querySelector("#buttonSection");
 const integerButtonSettings = {
   backgroundColor: "rgb(82, 82, 82)",
-  fontColor: "rgb(255, 255, 255",
+  fontColor: "rgb(255, 255, 255)",
 };
 const binaryOperatorButtonSettings = {
   backgroundColor: "rgb(230, 157, 12)",
@@ -48,7 +48,15 @@ let values = {
   secondValue: "",
 };
 
-function addDecoration() {
+function addAttribution() {
+  const calculatorSection = document.querySelector("#calculatorSection");
+  const attributionText = document.createElement("div");
+  attributionText.innerText = "Font of Calculator Display: Digital-7 by Style-7\nLicense: Freeware, Non-Commercial (via FONTSPACE)";
+  attributionText.id = "attributionText";
+  calculatorSection.appendChild(attributionText);
+}
+
+function addDisplayReflection() {
   const displaySection = document.querySelector("#displaySection");
   const reflectionBox = document.createElement("div");
   const firstDisplayReflection = document.createElement("div");
@@ -127,6 +135,7 @@ function createCalculator() {
     currentRow.appendChild(currentButton);
     buttonCounter++;
   }
+  addDisplayReflection();
 }
 
 function canBeUsedOrDisplayed(value) {
@@ -337,7 +346,7 @@ function initialize() {
   updateDisplay();
   createCalculator();
   initializeButtonEventListeners();
-  addDecoration();
+  addAttribution();
 }
 
 initialize();

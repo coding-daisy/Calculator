@@ -11,7 +11,9 @@
 
 #calculatorSection {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
 }
 
 #calculatorBody {
@@ -104,4 +106,16 @@
 .buttonReflection {
     width: 15px;
     border-radius: 4px;
+}
+
+#attributionText {
+    text-align: center;
+    background-color:  rgb(47, 47, 47);
+    border: 3px solid rgb(21, 21, 21);
+    padding: 6px;
+    border-radius: 10px;
+    font-family: 'Roboto';
+    color: rgb(195, 195, 195);
+    font-size: 7px;
+    font-weight: 500;
 }

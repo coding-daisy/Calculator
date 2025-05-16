@@ -51,17 +51,17 @@ let values = {
 function addDecoration() {
   const displaySection = document.querySelector("#displaySection");
   const reflectionBox = document.createElement("div");
-  const firstReflection = document.createElement("div");
-  const secondReflection = document.createElement("div");
-  reflectionBox.id = "reflectionBox";
-  firstReflection.classList.add("reflection");
-  secondReflection.classList.add("reflection");
-  firstReflection.id = "firstReflection";
-  secondReflection.id = "secondReflection";
+  const firstDisplayReflection = document.createElement("div");
+  const secondDisplayReflection = document.createElement("div");
+  reflectionBox.classList.add("reflectionBox");
+  firstDisplayReflection.classList.add("reflection");
+  secondDisplayReflection.classList.add("reflection");
+  firstDisplayReflection.id = "firstDisplayReflection";
+  secondDisplayReflection.id = "secondDisplayReflection";
 
   displaySection.appendChild(reflectionBox);
-  reflectionBox.appendChild(firstReflection);
-  reflectionBox.appendChild(secondReflection);
+  reflectionBox.appendChild(firstDisplayReflection);
+  reflectionBox.appendChild(secondDisplayReflection);
 }
 
 function reset() {
@@ -78,6 +78,17 @@ function initializeButtonEventListeners() {
       processInput(event.target.innerText);
     }
   });
+}
+
+function addButtonReflection(button) {
+  const buttonReflectionBox = document.createElement("div");
+  const buttonReflection = document.createElement("div");
+
+  buttonReflectionBox.classList.add("reflectionBox");
+  buttonReflection.classList.add("reflection", "buttonReflection");
+
+  button.appendChild(buttonReflectionBox);
+  buttonReflectionBox.appendChild(buttonReflection);
 }
 
 function createCalculator() {
@@ -110,6 +121,8 @@ function createCalculator() {
     } else {
       currentButton.style.width = "25%";
     }
+
+    addButtonReflection(currentButton);
 
     currentRow.appendChild(currentButton);
     buttonCounter++;

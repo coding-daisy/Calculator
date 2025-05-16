@@ -78,7 +78,7 @@
     background-color: rgba(0, 0, 0, 0.2);
 }
 
-#reflectionBox {
+.reflectionBox {
     position: absolute;
     top: 3px;
     left: 5px;
@@ -89,13 +89,19 @@
 
 .reflection {
     background-color: rgba(255, 255, 255, 0.2); 
+}
+
+#firstDisplayReflection {
+    width: 30px;
     border-radius: 2px;
 }
 
-#firstReflection {
-    width: 30px;
+#secondDisplayReflection {
+    width: 10px;
+    border-radius: 2px;
 }
 
-#secondReflection {
-    width: 10px;
+.buttonReflection {
+    width: 15px;
+    border-radius: 4px;
 }

@@ -77,7 +77,7 @@ function reset() {
   values["secondValue"] = "";
   currentBinaryOperatorIndex = 4;
   firstValueIsResult = true;
-  updateDisplay();
+  updateDisplay(false);
 }
 
 function initializeButtonEventListeners() {
@@ -172,12 +172,13 @@ function turnIntoDisplayableValue(whichValue) {
   }
 }
 
-function updateDisplay() {
+// hasToBeConverted is true iff the value to be displayed is a result of a calculation (and therefore might have to be truncated / be too long)
+function updateDisplay(hasToBeConverted) {
   if (canBeUsedOrDisplayed(values["secondValue"])) {
-    turnIntoDisplayableValue("secondValue");
+    if (hasToBeConverted) {turnIntoDisplayableValue("secondValue");};
     display.innerText = values["secondValue"];
   } else {
-    turnIntoDisplayableValue("firstValue");
+    if (hasToBeConverted) {turnIntoDisplayableValue("firstValue");}
     display.innerText = values["firstValue"];
   }
 }
@@ -283,13 +284,13 @@ function conditionallyAppendOrNegate(whichValue, string) {
   } else {
     conditionallyAppend(whichValue, string);
   }
-  updateDisplay();
+  updateDisplay(false);
 }
 
 function processBinaryOperator(binaryOperatorIndex) {
   if (canBeUsedOrDisplayed(values["secondValue"])) {
     performCalculation();
-    updateDisplay();
+    updateDisplay(true);
   } else if (currentBinaryOperatorIndex !== 4) {
     // if the previous operator wasn't "=",  a prefix of "-" have been set for the second value.
     // In that case, when the operator is changed, this prefix has to be discarded.
@@ -336,14 +337,14 @@ function processInput(input) {
     processIntegerOrDotOrUnaryOperator(input);
   } else if (type == "AC") {
     reset();
-    updateDisplay();
+    updateDisplay(false);
   } else {
     throw new Error("invalid input type");
   }
 }
 
 function initialize() {
-  updateDisplay();
+  updateDisplay(false);
   createCalculator();
   initializeButtonEventListeners();
   addAttribution();
